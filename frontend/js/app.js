@@ -66,7 +66,6 @@ function limpiarTodo() {
 
   setFiltroActivo("filtroProcesar", "todos");
   setFiltroActivo("filtroDescarga", "todos");
-  actualizarAyudaFiltro();
   renderTablaCasos();
   renderTablaDescargas();
   actualizarKpis();
@@ -98,23 +97,12 @@ document.querySelectorAll("#filtroProcesar .filtro-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     estado.filtroProcesar = btn.dataset.filtro;
     setFiltroActivo("filtroProcesar", btn.dataset.filtro);
-    actualizarAyudaFiltro();
     actualizarBotonProcesar();
+    actualizarKpis();
     renderTablaCasos();
     guardarEstado();
   });
 });
-
-function actualizarAyudaFiltro() {
-  const ayuda = document.getElementById("ayudaFiltro");
-  const textos = {
-    todos: "Se generarán todos los casos cargados (PP + PT).",
-    PP: "Se generarán solo los casos PP.",
-    PT: "Se generarán solo los casos PT.",
-    seleccionados: `Se generarán solo los casos marcados con checkbox en el panel de casos (${estado.seleccionados.size} seleccionado(s)).`,
-  };
-  ayuda.textContent = textos[estado.filtroProcesar];
-}
 
 function gruposParaProcesar() {
   const f = estado.filtroProcesar;
@@ -361,8 +349,8 @@ function renderTablaCasos() {
       if (chk.checked) estado.seleccionados.add(chk.dataset.id);
       else estado.seleccionados.delete(chk.dataset.id);
       actualizarChkTodos();
-      actualizarAyudaFiltro();
       actualizarBotonProcesar();
+      actualizarKpis();
       guardarEstado();
     });
   });
@@ -384,15 +372,20 @@ chkTodos.addEventListener("change", () => {
   if (chkTodos.checked) casos.forEach((c) => estado.seleccionados.add(c.id));
   else casos.forEach((c) => estado.seleccionados.delete(c.id));
   renderTablaCasos();
-  actualizarAyudaFiltro();
   actualizarBotonProcesar();
+  actualizarKpis();
   guardarEstado();
 });
 
-// ---- KPIs (paso 4), desglosados por PP/PT ----
+// ---- KPIs (paso 4): dinámicos según el filtro activo (todos/PP/PT/seleccionados) ----
 function actualizarKpis() {
-  const total = estado.casosPP.length + estado.casosPT.length;
-  const entradas = Object.entries(estado.resultados);
+  const { PP, PT } = gruposParaProcesar();
+  const idsPP = new Set(PP.map((c) => c.id));
+  const idsPT = new Set(PT.map((c) => c.id));
+  const total = PP.length + PT.length;
+
+  const entradas = Object.entries(estado.resultados)
+    .filter(([id, r]) => (r.hoja === "PP" && idsPP.has(id)) || (r.hoja === "PT" && idsPT.has(id)));
 
   const contarPor = (hoja, ok) =>
     entradas.filter(([, r]) => r.hoja === hoja && r.ok === ok).length;
@@ -401,18 +394,16 @@ function actualizarKpis() {
   const okPT = contarPor("PT", true);
   const errPP = contarPor("PP", false);
   const errPT = contarPor("PT", false);
-  const totalOk = okPP + okPT;
-  const totalErr = errPP + errPT;
 
   document.getElementById("kpiTotal").textContent = total || "—";
   document.getElementById("kpiTotalDesglose").textContent =
-    total ? `PP: ${estado.casosPP.length} · PT: ${estado.casosPT.length}` : "";
+    total ? `PP: ${PP.length} · PT: ${PT.length}` : "";
 
-  document.getElementById("kpiOk").textContent = entradas.length ? totalOk : "—";
+  document.getElementById("kpiOk").textContent = entradas.length ? okPP + okPT : "—";
   document.getElementById("kpiOkDesglose").textContent =
     entradas.length ? `PP: ${okPP} · PT: ${okPT}` : "";
 
-  document.getElementById("kpiError").textContent = entradas.length ? totalErr : "—";
+  document.getElementById("kpiError").textContent = entradas.length ? errPP + errPT : "—";
   document.getElementById("kpiErrorDesglose").textContent =
     entradas.length ? `PP: ${errPP} · PT: ${errPT}` : "";
 }
@@ -579,7 +570,6 @@ function renderTablaDescargas() {
   document.getElementById("buscarDescarga").value = estado.buscarDescarga || "";
   setFiltroActivo("filtroProcesar", estado.filtroProcesar);
   setFiltroActivo("filtroDescarga", estado.filtroDescarga);
-  actualizarAyudaFiltro();
 
   renderTablaCasos();
   renderTablaDescargas();
