@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Automatización de Convenios</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <span class="brand">Convenios · Automatización</span>
+    <button id="btnLimpiar" class="btn-outline btn-danger">Limpiar / Resetear</button>
+  </header>
+
+  <main class="wrap">
+
+    <section class="grid-2">
+      <div class="card" id="cardExcel">
+        <div class="card-head">
+          <h2>1. Sube el Excel</h2>
+          <span class="muted">hojas PP + PT, 1 fila = 1 caso</span>
+        </div>
+        <label class="dropzone" id="dropExcel">
+          <input type="file" id="inputExcel" accept=".xlsx,.xlsm" hidden />
+          <span class="dropzone-icon">📄</span>
+          <span class="dropzone-text">Arrastra el Excel aquí o haz clic</span>
+        </label>
+        <div class="dropzone-done" id="doneExcel" hidden>
+          <span id="doneExcelTexto"></span>
+          <button class="btn-link" id="btnCambiarExcel">Cambiar archivo</button>
+        </div>
+        <div id="excelStatus" class="status"></div>
+      </div>
+
+      <div class="card" id="cardPdfs">
+        <div class="card-head">
+          <h2>2. Sube los PDFs de actas</h2>
+          <span class="muted">1 o varios por caso, o un .zip con todos</span>
+        </div>
+        <label class="dropzone" id="dropPdfs">
+          <input type="file" id="inputPdfs" accept=".pdf,.zip" multiple hidden />
+          <span class="dropzone-icon">🖼️</span>
+          <span class="dropzone-text">Arrastra los PDFs aquí o haz clic</span>
+        </label>
+        <div class="dropzone-done" id="donePdfs" hidden>
+          <span id="donePdfsTexto"></span>
+          <button class="btn-link" id="btnAgregarPdfs">Agregar más PDFs</button>
+        </div>
+        <div id="pdfsStatus" class="status"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>3. Panel de casos</h2>
+      </div>
+      <div class="tabs-row">
+        <div class="tabs" id="tabsHoja">
+          <button class="tab active" data-hoja="PP">PP · Pérdida Parcial (<span id="countPP">0</span>)</button>
+          <button class="tab" data-hoja="PT">PT · Pérdida Total (<span id="countPT">0</span>)</button>
+        </div>
+        <label class="chk-todos">
+          <input type="checkbox" id="chkTodos" />
+          Seleccionar todos
+        </label>
+      </div>
+      <div class="tabla-scroll">
+        <table class="tabla" id="tablaCasos">
+          <thead>
+            <tr>
+              <th></th>
+              <th>ID</th>
+              <th>Nombre archivo</th>
+              <th>Fotos</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="tabla-vacia"><td colspan="5">Sube un Excel para ver los casos aquí.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" id="cardProcesar">
+      <div class="card-head">
+        <h2>4. Procesar</h2>
+      </div>
+      <div class="filtros-fila">
+        <span class="muted">Filtrar:</span>
+        <div class="filtro-btns" id="filtroProcesar">
+          <button class="filtro-btn active" data-filtro="todos">Todos</button>
+          <button class="filtro-btn" data-filtro="PP">Solo PP</button>
+          <button class="filtro-btn" data-filtro="PT">Solo PT</button>
+          <button class="filtro-btn" data-filtro="seleccionados">Caso(s) específico(s)</button>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi">
+          <span class="kpi-label">Casos leídos</span>
+          <span class="kpi-value" id="kpiTotal">—</span>
+          <span class="kpi-desglose" id="kpiTotalDesglose"></span>
+        </div>
+        <div class="kpi">
+          <span class="kpi-label">Procesados OK</span>
+          <span class="kpi-value" id="kpiOk">—</span>
+          <span class="kpi-desglose" id="kpiOkDesglose"></span>
+        </div>
+        <div class="kpi kpi-accent">
+          <span class="kpi-label">Con error</span>
+          <span class="kpi-value" id="kpiError">—</span>
+          <span class="kpi-desglose" id="kpiErrorDesglose"></span>
+        </div>
+      </div>
+
+      <button id="btnProcesar" class="btn-primary" disabled>Generar convenios</button>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>5. Descargar</h2>
+      </div>
+      <div class="filtros-fila">
+        <span class="muted">¿Qué descargar?</span>
+        <div class="filtro-btns" id="filtroDescarga">
+          <button class="filtro-btn active" data-filtro="todos">Todo (ZIP)</button>
+          <button class="filtro-btn" data-filtro="PP">Solo PP (ZIP)</button>
+          <button class="filtro-btn" data-filtro="PT">Solo PT (ZIP)</button>
+        </div>
+        <button id="btnDescargarZip" class="btn-outline" disabled>Descargar</button>
+      </div>
+      <input type="text" id="buscarDescarga" class="input-buscar" placeholder="Buscar por ID o nombre de archivo..." />
+
+      <table class="tabla" id="tablaDescargas">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Archivo</th>
+            <th>Hoja</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="tabla-vacia"><td colspan="4">Todavía no se ha procesado nada.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

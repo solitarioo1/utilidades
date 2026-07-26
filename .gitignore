@@ -1,0 +1,25 @@
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Entorno / secretos
+.env
+
+# Datos runtime (subidas, fotos generadas, salidas, temporales)
+storage/uploads/
+storage/actas_jpg/
+storage/output/
+storage/tmp/
+
+# Excel/Word temporales de Office
+~$*.xlsm
+~$*.docx
+
+# Plantillas con datos reales de clientes (DNI, RUC, nombres) - privado
+plantillas/
