@@ -23,3 +23,17 @@ storage/tmp/
 
 # Plantillas con datos reales de clientes (DNI, RUC, nombres) - privado
 plantillas/
+
+# archivos .md
+*.md
+
+# IDE / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Caches Python
+.pytest_cache/
+.mypy_cache/
+*.log
