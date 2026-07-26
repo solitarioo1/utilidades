@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
@@ -8,6 +8,11 @@ app = FastAPI(title="Automatización de Convenios de Ajuste")
 
 app.mount("/static/actas", StaticFiles(directory=str(settings.actas_jpg_dir)), name="actas")
 app.mount("/frontend", StaticFiles(directory="frontend", html=True), name="frontend")
+
+
+@app.get("/")
+def raiz():
+    return RedirectResponse(url="/frontend/")
 
 
 @app.exception_handler(Exception)
