@@ -14,6 +14,11 @@ class Settings(BaseSettings):
 
     public_base_url: str = "http://localhost:8000"
 
+    # Apagado mientras se resuelve el tema de la fuente con licencia (LibreOffice
+    # sustituye la fuente al convertir a PDF si no está instalada en el servidor).
+    # En false: se entrega el .docx tal cual sale de jsreport.
+    convertir_a_pdf: bool = False
+
     storage_dir: Path = BASE_DIR / "storage"
     uploads_excel_dir: Path = storage_dir / "uploads" / "excel"
     uploads_pdfs_dir: Path = storage_dir / "uploads" / "pdfs"

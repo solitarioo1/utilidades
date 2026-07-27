@@ -42,7 +42,7 @@ async def procesar(payload: ProcesarRequest):
             ruta_generada.write_bytes(contenido)
 
             nombre_final = ruta_generada.name
-            if ext == ".docx":
+            if settings.convertir_a_pdf and ext == ".docx":
                 ruta_pdf = convertir_docx_a_pdf(ruta_generada)
                 if ruta_pdf is not None:
                     ruta_generada.unlink(missing_ok=True)
